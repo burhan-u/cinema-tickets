@@ -11,17 +11,31 @@ describe('TicketService', () => {
 
   describe('Account ID validation', () => {
     const ticket = new TicketTypeRequest('ADULT', 1);
+    const invalidIdException = new InvalidPurchaseException('Invalid account ID');
 
-    it('should throw an exception if account id is zero', () => {
+    it.each([
+      [0],
+      [-1],
+    ])('should throw an exception if account id is less than 1', (accountId) => {
       expect(() => {
-        ticketService.purchaseTickets(0, ticket);
-      }).toThrow(new InvalidPurchaseException('Invalid account ID'));
+        ticketService.purchaseTickets(accountId, ticket);
+      }).toThrow(invalidIdException);
     });
 
-    it('should throw an exception if account id is less than zero', () => {
+    it.each([
+      [10.11],
+      ['1'],
+      [null],
+    ])('should throw an exception if account id is not an integer', (accountId) => {
       expect(() => {
-        ticketService.purchaseTickets(-1, ticket);
-      }).toThrow(new InvalidPurchaseException('Invalid account ID'));
+        ticketService.purchaseTickets(accountId, ticket);
+      }).toThrow(invalidIdException);
+    });
+
+    it('should not throw an exception if account id is valid', () => {
+      expect(() => {
+        ticketService.purchaseTickets(1, ticket);
+      }).not.toThrow(invalidIdException);
     });
   });
 });

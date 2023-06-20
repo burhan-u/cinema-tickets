@@ -130,3 +130,8 @@ dist
 .pnp.*
 
 .vscode
+
+# stryker temp files
+.stryker-tmp
+
+reports
