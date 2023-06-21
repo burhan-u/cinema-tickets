@@ -97,5 +97,14 @@ describe('TicketService', () => {
         ticketService.purchaseTickets(accountId, adultTickets, infantTickets);
       }).toThrow(new InvalidPurchaseException(errorMessages.maxInfants));
     });
+
+    it('should not throw an exception if number of infant tickets equal number of adult tickets', () => {
+      const adultTickets = new TicketTypeRequest('ADULT', 2);
+      const infantTickets = new TicketTypeRequest('INFANT', 2);
+
+      expect(() => {
+        ticketService.purchaseTickets(accountId, adultTickets, infantTickets);
+      }).not.toThrow(new InvalidPurchaseException(errorMessages.maxInfants));
+    });
   });
 });

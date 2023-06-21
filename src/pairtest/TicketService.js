@@ -4,14 +4,14 @@ import InvalidPurchaseException from './lib/InvalidPurchaseException';
 import errorMessages from './lib/ErrorMessages';
 
 export default class TicketService {
-  /**
-   * Should only have private methods other than the one below.
-   */
+  #MAX_TICKET_COUNT = 20;
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     this.#validateAccountID(accountId);
-    this.#validateTickets(ticketTypeRequests);
+    this.#validateTicketRequests(ticketTypeRequests);
+    const ticketCount = this.#getTicketCount(ticketTypeRequests);
+    this.#validateTicketCount(ticketCount);
   }
 
   #validateAccountID(accountId) {
@@ -20,44 +20,47 @@ export default class TicketService {
     }
   }
 
-  #validateTickets(ticketTypeRequests) {
+  #validateTicketRequests(ticketTypeRequests) {
     if (!ticketTypeRequests.length) {
       throw new InvalidPurchaseException(errorMessages.invalidTickets);
     }
 
-    let adultTicketPurchased = false;
-    let numAdultTickets = 0;
-    let numInfantTickets = 0;
     ticketTypeRequests.forEach((ticket) => {
       if (!(ticket instanceof TicketTypeRequest)) {
         throw new InvalidPurchaseException(errorMessages.invalidTickets);
       }
+    });
+  }
 
-      if (ticket.getTicketType() === 'ADULT') {
-        adultTicketPurchased = true;
-        numAdultTickets += ticket.getNoOfTickets();
-      }
+  #getTicketCount(ticketTypeRequests) {
+    const ticketCount = {
+      ADULT: 0,
+      CHILD: 0,
+      INFANT: 0,
+    };
 
-      if (ticket.getTicketType() === 'INFANT') {
-        numInfantTickets += ticket.getNoOfTickets();
-      }
+    ticketTypeRequests.forEach((ticket) => {
+      ticketCount[ticket.getTicketType()] += ticket.getNoOfTickets();
     });
 
-    if (adultTicketPurchased === false) {
+    return ticketCount;
+  }
+
+  #validateTicketCount(tickets) {
+    let totalTicketCount = 0;
+    Object.values(tickets).forEach((ticketCount) => {
+      totalTicketCount += ticketCount;
+    });
+
+    if (tickets.ADULT === 0) {
       throw new InvalidPurchaseException(errorMessages.noAdult);
     }
 
-    if (numInfantTickets > numAdultTickets) {
+    if (tickets.INFANT > tickets.ADULT) {
       throw new InvalidPurchaseException(errorMessages.maxInfants);
     }
 
-    // eslint-disable-next-line arrow-body-style
-    const totalTickets = ticketTypeRequests.reduce((total, tickets) => {
-      return total + tickets.getNoOfTickets();
-    }, 0);
-
-    const MAX_TICKET_AMOUNT = 20;
-    if (totalTickets > MAX_TICKET_AMOUNT) {
+    if (totalTicketCount > this.#MAX_TICKET_COUNT) {
       throw new InvalidPurchaseException(errorMessages.maxTickets);
     }
   }
