@@ -10,7 +10,16 @@ export default class TicketService {
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     this.#validateAccountID(accountId);
+    this.#validateTickets(ticketTypeRequests);
+  }
 
+  #validateAccountID(accountId) {
+    if (!Number.isInteger(accountId) || accountId <= 0) {
+      throw new InvalidPurchaseException('Invalid account ID');
+    }
+  }
+
+  #validateTickets(ticketTypeRequests) {
     if (!ticketTypeRequests.length) {
       throw new InvalidPurchaseException('Invalid ticket type');
     }
@@ -29,12 +38,6 @@ export default class TicketService {
     const MAX_TICKET_AMOUNT = 20;
     if (totalTickets > MAX_TICKET_AMOUNT) {
       throw new InvalidPurchaseException('Maximum of 20 tickets per purchase');
-    }
-  }
-
-  #validateAccountID(accountId) {
-    if (!Number.isInteger(accountId) || accountId <= 0) {
-      throw new InvalidPurchaseException('Invalid account ID');
     }
   }
 }
