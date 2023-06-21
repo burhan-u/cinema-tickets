@@ -52,6 +52,10 @@ export default class TicketService {
       totalTicketCount += ticketCount;
     });
 
+    if (totalTicketCount === 0) {
+      throw new InvalidPurchaseException(errorMessages.noTickets);
+    }
+
     if (tickets.ADULT === 0) {
       throw new InvalidPurchaseException(errorMessages.noAdult);
     }

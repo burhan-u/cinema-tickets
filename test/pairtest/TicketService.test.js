@@ -63,6 +63,14 @@ describe('TicketService', () => {
       }).toThrow(invalidTicketException);
     });
 
+    it('should throw an exception if ticket type requests contain no tickets', () => {
+      const tickets = [new TicketTypeRequest('ADULT', 0), new TicketTypeRequest('CHILD', 0)];
+
+      expect(() => {
+        ticketService.purchaseTickets(accountId, ...tickets);
+      }).toThrow(new InvalidPurchaseException(errorMessages.noTickets));
+    });
+
     it.each([
       [[new TicketTypeRequest('ADULT', 21)]],
       [[new TicketTypeRequest('ADULT', 12), new TicketTypeRequest('CHILD', 10)]],
