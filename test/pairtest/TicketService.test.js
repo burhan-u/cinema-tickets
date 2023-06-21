@@ -79,5 +79,14 @@ describe('TicketService', () => {
         ticketService.purchaseTickets(accountId, tickets);
       }).not.toThrow(maximumTicketExcepion);
     });
+
+    it.each([
+      [new TicketTypeRequest('CHILD', 1)],
+      [new TicketTypeRequest('INFANT', 1)],
+    ])('should throw an exception if trying to purchase tickets without an adult ticket', (tickets) => {
+      expect(() => {
+        ticketService.purchaseTickets(accountId, tickets);
+      }).toThrow(new InvalidPurchaseException(errorMessages.noAdult));
+    });
   });
 });

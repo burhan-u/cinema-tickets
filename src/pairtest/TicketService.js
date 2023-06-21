@@ -25,11 +25,20 @@ export default class TicketService {
       throw new InvalidPurchaseException(errorMessages.invalidTickets);
     }
 
+    let adultTicketPurchased = false;
     ticketTypeRequests.forEach((ticket) => {
       if (!(ticket instanceof TicketTypeRequest)) {
         throw new InvalidPurchaseException(errorMessages.invalidTickets);
       }
+
+      if (ticket.getTicketType() === 'ADULT') {
+        adultTicketPurchased = true;
+      }
     });
+
+    if (adultTicketPurchased === false) {
+      throw new InvalidPurchaseException(errorMessages.noAdult);
+    }
 
     // eslint-disable-next-line arrow-body-style
     const totalTickets = ticketTypeRequests.reduce((total, tickets) => {
