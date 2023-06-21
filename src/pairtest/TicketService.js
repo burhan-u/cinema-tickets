@@ -19,7 +19,7 @@ export default class TicketService {
     const ticketCount = this.#getTicketCount(ticketTypeRequests);
     this.#validateTicketCount(ticketCount);
 
-    const totalPrice = this.#getTotalPrice(ticketCount);
+    const totalPrice = this.#getTotalCost(ticketCount);
 
     this.#ticketPaymentService.makePayment(accountId, totalPrice);
   }
@@ -79,7 +79,7 @@ export default class TicketService {
     return ticketCount;
   }
 
-  #getTotalPrice(tickets) {
+  #getTotalCost(tickets) {
     const ticketPrices = {
       ADULT: 20,
       CHILD: 10,

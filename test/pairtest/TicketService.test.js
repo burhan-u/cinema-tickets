@@ -169,5 +169,17 @@ describe('TicketService', () => {
 
       expect(ticketPaymentServiceMock).toBeCalledWith(accountId, expectedCost);
     });
+
+    it('should calculate the cost of multiples of the same ticket type', () => {
+      const tickets = [
+        new TicketTypeRequest('ADULT', 1),
+        new TicketTypeRequest('ADULT', 2),
+      ];
+      const expectedCost = 60;
+
+      ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(ticketPaymentServiceMock).toBeCalledWith(accountId, expectedCost);
+    });
   });
 });
