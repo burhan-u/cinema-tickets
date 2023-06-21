@@ -1,7 +1,14 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { jest } from '@jest/globals';
 import TicketService from '../../src/pairtest/TicketService';
 import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest';
 import InvalidPurchaseException from '../../src/pairtest/lib/InvalidPurchaseException';
 import errorMessages from '../../src/pairtest/lib/ErrorMessages';
+import TicketPaymentService from '../../src/thirdparty/paymentgateway/TicketPaymentService';
+
+const ticketPaymentServiceMock = jest
+  .spyOn(TicketPaymentService.prototype, 'makePayment')
+  .mockImplementation(() => {});
 
 describe('TicketService', () => {
   let ticketService;
@@ -113,6 +120,54 @@ describe('TicketService', () => {
       expect(() => {
         ticketService.purchaseTickets(accountId, adultTickets, infantTickets);
       }).not.toThrow(new InvalidPurchaseException(errorMessages.maxInfants));
+    });
+  });
+
+  describe('Ticket price calculation', () => {
+    const accountId = 1;
+
+    beforeEach(() => {
+      ticketService = new TicketService(new TicketPaymentService());
+    });
+
+    it('should calculate the cost of a single adult ticket and call the payment service', () => {
+      const ticket = new TicketTypeRequest('ADULT', 1);
+      const expectedCost = 20;
+
+      ticketService.purchaseTickets(accountId, ticket);
+
+      expect(ticketPaymentServiceMock).toBeCalledWith(accountId, expectedCost);
+    });
+
+    it.each([
+      { tickets: [new TicketTypeRequest('ADULT', 2)], expectedCost: 40 },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 1),
+          new TicketTypeRequest('CHILD', 2),
+        ],
+        expectedCost: 40,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 3),
+          new TicketTypeRequest('CHILD', 1),
+          new TicketTypeRequest('INFANT', 2),
+        ],
+        expectedCost: 70,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 1),
+          new TicketTypeRequest('CHILD', 5),
+          new TicketTypeRequest('INFANT', 1),
+        ],
+        expectedCost: 70,
+      },
+    ])('should calculate the cost of multiple tickets and call the payment service', ({ tickets, expectedCost }) => {
+      ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(ticketPaymentServiceMock).toBeCalledWith(accountId, expectedCost);
     });
   });
 });

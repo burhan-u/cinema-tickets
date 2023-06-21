@@ -6,12 +6,22 @@ import errorMessages from './lib/ErrorMessages';
 export default class TicketService {
   #MAX_TICKET_COUNT = 20;
 
+  #ticketPaymentService;
+
+  constructor(ticketPaymentService) {
+    this.#ticketPaymentService = ticketPaymentService;
+  }
+
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     this.#validateAccountID(accountId);
     this.#validateTicketRequests(ticketTypeRequests);
     const ticketCount = this.#getTicketCount(ticketTypeRequests);
     this.#validateTicketCount(ticketCount);
+
+    const totalPrice = this.#getTotalPrice(ticketCount);
+
+    this.#ticketPaymentService.makePayment(accountId, totalPrice);
   }
 
   #validateAccountID(accountId) {
@@ -67,5 +77,21 @@ export default class TicketService {
     });
 
     return ticketCount;
+  }
+
+  #getTotalPrice(tickets) {
+    const ticketPrices = {
+      ADULT: 20,
+      CHILD: 10,
+      INFANT: 0,
+    };
+    let totalPrice = 0;
+
+    Object.entries(tickets).forEach((entry) => {
+      const [ticketType, ticketCount] = entry;
+      totalPrice += (ticketPrices[ticketType] * ticketCount);
+    });
+
+    return totalPrice;
   }
 }
