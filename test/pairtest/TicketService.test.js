@@ -32,9 +32,13 @@ describe('TicketService', () => {
       }).toThrow(invalidIdException);
     });
 
-    it('should not throw an exception if account id is valid', () => {
+    it.each([
+      [1],
+      [10],
+      [100],
+    ])('should not throw an exception if account id is valid', (accountId) => {
       expect(() => {
-        ticketService.purchaseTickets(1, ticket);
+        ticketService.purchaseTickets(accountId, ticket);
       }).not.toThrow(invalidIdException);
     });
   });
