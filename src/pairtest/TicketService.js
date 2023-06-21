@@ -32,20 +32,6 @@ export default class TicketService {
     });
   }
 
-  #getTicketCount(ticketTypeRequests) {
-    const ticketCount = {
-      ADULT: 0,
-      CHILD: 0,
-      INFANT: 0,
-    };
-
-    ticketTypeRequests.forEach((ticket) => {
-      ticketCount[ticket.getTicketType()] += ticket.getNoOfTickets();
-    });
-
-    return ticketCount;
-  }
-
   #validateTicketCount(tickets) {
     let totalTicketCount = 0;
     Object.values(tickets).forEach((ticketCount) => {
@@ -67,5 +53,19 @@ export default class TicketService {
     if (totalTicketCount > this.#MAX_TICKET_COUNT) {
       throw new InvalidPurchaseException(errorMessages.maxTickets);
     }
+  }
+
+  #getTicketCount(ticketTypeRequests) {
+    const ticketCount = {
+      ADULT: 0,
+      CHILD: 0,
+      INFANT: 0,
+    };
+
+    ticketTypeRequests.forEach((ticket) => {
+      ticketCount[ticket.getTicketType()] += ticket.getNoOfTickets();
+    });
+
+    return ticketCount;
   }
 }
