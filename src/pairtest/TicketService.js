@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import TicketTypeRequest from './lib/TicketTypeRequest';
 import InvalidPurchaseException from './lib/InvalidPurchaseException';
+import errorMessages from './lib/ErrorMessages';
 
 export default class TicketService {
   /**
@@ -15,18 +16,18 @@ export default class TicketService {
 
   #validateAccountID(accountId) {
     if (!Number.isInteger(accountId) || accountId <= 0) {
-      throw new InvalidPurchaseException('Invalid account ID');
+      throw new InvalidPurchaseException(errorMessages.invalidAccId);
     }
   }
 
   #validateTickets(ticketTypeRequests) {
     if (!ticketTypeRequests.length) {
-      throw new InvalidPurchaseException('Invalid ticket type');
+      throw new InvalidPurchaseException(errorMessages.invalidTickets);
     }
 
     ticketTypeRequests.forEach((ticket) => {
       if (!(ticket instanceof TicketTypeRequest)) {
-        throw new InvalidPurchaseException('Invalid ticket type');
+        throw new InvalidPurchaseException(errorMessages.invalidTickets);
       }
     });
 
@@ -37,7 +38,7 @@ export default class TicketService {
 
     const MAX_TICKET_AMOUNT = 20;
     if (totalTickets > MAX_TICKET_AMOUNT) {
-      throw new InvalidPurchaseException('Maximum of 20 tickets per purchase');
+      throw new InvalidPurchaseException(errorMessages.maxTickets);
     }
   }
 }

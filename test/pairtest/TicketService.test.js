@@ -1,6 +1,7 @@
 import TicketService from '../../src/pairtest/TicketService';
 import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest';
 import InvalidPurchaseException from '../../src/pairtest/lib/InvalidPurchaseException';
+import errorMessages from '../../src/pairtest/lib/ErrorMessages';
 
 describe('TicketService', () => {
   let ticketService;
@@ -11,7 +12,7 @@ describe('TicketService', () => {
 
   describe('Account ID validation', () => {
     const ticket = new TicketTypeRequest('ADULT', 1);
-    const invalidIdException = new InvalidPurchaseException('Invalid account ID');
+    const invalidIdException = new InvalidPurchaseException(errorMessages.invalidAccId);
 
     it.each([
       [0],
@@ -45,8 +46,8 @@ describe('TicketService', () => {
 
   describe('Ticket Type Requests validation', () => {
     const accountId = 1;
-    const invalidTicketException = new InvalidPurchaseException('Invalid ticket type');
-    const maximumTicketExcepion = new InvalidPurchaseException('Maximum of 20 tickets per purchase');
+    const invalidTicketException = new InvalidPurchaseException(errorMessages.invalidTickets);
+    const maximumTicketExcepion = new InvalidPurchaseException(errorMessages.maxTickets);
 
     it('should throw exception if tickets are empty', () => {
       expect(() => {
