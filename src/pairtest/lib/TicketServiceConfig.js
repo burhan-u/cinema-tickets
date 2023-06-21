@@ -5,6 +5,7 @@ const config = Object.freeze({
     INFANT: 0,
   }),
   maxTicketCount: 20,
+  seatReservationIgnore: Object.freeze(['INFANT']),
 });
 
 export default config;

@@ -7,8 +7,11 @@ import config from './lib/TicketServiceConfig';
 export default class TicketService {
   #ticketPaymentService;
 
-  constructor(ticketPaymentService) {
+  #seatReservationService;
+
+  constructor(ticketPaymentService, seatReservationService) {
     this.#ticketPaymentService = ticketPaymentService;
+    this.#seatReservationService = seatReservationService;
   }
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
@@ -19,8 +22,10 @@ export default class TicketService {
     this.#validateTicketCount(ticketCount);
 
     const totalPrice = this.#getTotalCost(ticketCount);
+    const seatsToReserve = this.#getNumSeatsToReserve(ticketCount);
 
     this.#ticketPaymentService.makePayment(accountId, totalPrice);
+    this.#seatReservationService.reserveSeat(accountId, seatsToReserve);
   }
 
   #validateAccountID(accountId) {
@@ -87,5 +92,18 @@ export default class TicketService {
     });
 
     return totalPrice;
+  }
+
+  #getNumSeatsToReserve(tickets) {
+    let totalSeats = 0;
+
+    Object.entries(tickets).forEach((entry) => {
+      const [ticketType, ticketCount] = entry;
+      if (!config.seatReservationIgnore.includes(ticketType)) {
+        totalSeats += ticketCount;
+      }
+    });
+
+    return totalSeats;
   }
 }

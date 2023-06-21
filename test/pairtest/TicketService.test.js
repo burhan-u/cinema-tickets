@@ -5,9 +5,14 @@ import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest';
 import InvalidPurchaseException from '../../src/pairtest/lib/InvalidPurchaseException';
 import errorMessages from '../../src/pairtest/lib/ErrorMessages';
 import TicketPaymentService from '../../src/thirdparty/paymentgateway/TicketPaymentService';
+import SeatReservationService from '../../src/thirdparty/seatbooking/SeatReservationService';
 
 const ticketPaymentServiceMock = jest
   .spyOn(TicketPaymentService.prototype, 'makePayment')
+  .mockImplementation(() => {});
+
+const seatReservationServiceMock = jest
+  .spyOn(SeatReservationService.prototype, 'reserveSeat')
   .mockImplementation(() => {});
 
 describe('TicketService', () => {
@@ -15,6 +20,7 @@ describe('TicketService', () => {
 
   beforeEach(() => {
     ticketService = new TicketService();
+    jest.clearAllMocks();
   });
 
   describe('Account ID validation', () => {
@@ -127,7 +133,9 @@ describe('TicketService', () => {
     const accountId = 1;
 
     beforeEach(() => {
-      ticketService = new TicketService(new TicketPaymentService());
+      const paymentService = new TicketPaymentService();
+      const seatReservationService = new SeatReservationService();
+      ticketService = new TicketService(paymentService, seatReservationService);
     });
 
     it('should calculate the cost of a single adult ticket and call the payment service', () => {
@@ -180,6 +188,96 @@ describe('TicketService', () => {
       ticketService.purchaseTickets(accountId, ...tickets);
 
       expect(ticketPaymentServiceMock).toBeCalledWith(accountId, expectedCost);
+    });
+  });
+
+  describe('Seat reservation calculation', () => {
+    const accountId = 1;
+
+    beforeEach(() => {
+      const paymentService = new TicketPaymentService();
+      const seatReservationService = new SeatReservationService();
+      ticketService = new TicketService(paymentService, seatReservationService);
+    });
+
+    it('should calculate number of seats for a single adult ticket and call reservation service', () => {
+      const ticket = new TicketTypeRequest('ADULT', 1);
+      const expectedSeats = 1;
+
+      ticketService.purchaseTickets(accountId, ticket);
+
+      expect(seatReservationServiceMock).toBeCalledWith(accountId, expectedSeats);
+    });
+
+    it.each([
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 1),
+          new TicketTypeRequest('INFANT', 1),
+        ],
+        expectedSeats: 1,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 4),
+          new TicketTypeRequest('INFANT', 4),
+        ],
+        expectedSeats: 4,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 8),
+          new TicketTypeRequest('INFANT', 6),
+        ],
+        expectedSeats: 8,
+      },
+    ])('should not reserve seats for infant tickets', ({ tickets, expectedSeats }) => {
+      ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(seatReservationServiceMock).toBeCalledWith(accountId, expectedSeats);
+    });
+
+    it.each([
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 1),
+          new TicketTypeRequest('CHILD', 2),
+        ],
+        expectedSeats: 3,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 3),
+          new TicketTypeRequest('CHILD', 1),
+          new TicketTypeRequest('INFANT', 2),
+        ],
+        expectedSeats: 4,
+      },
+      {
+        tickets: [
+          new TicketTypeRequest('ADULT', 1),
+          new TicketTypeRequest('CHILD', 15),
+          new TicketTypeRequest('INFANT', 0),
+        ],
+        expectedSeats: 16,
+      },
+    ])('should calculate number of seats for multiple tickets', ({ tickets, expectedSeats }) => {
+      ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(seatReservationServiceMock).toBeCalledWith(accountId, expectedSeats);
+    });
+
+    it('should calculate number of seats for multiples of the same ticket type', () => {
+      const tickets = [
+        new TicketTypeRequest('ADULT', 6),
+        new TicketTypeRequest('ADULT', 2),
+        new TicketTypeRequest('ADULT', 9),
+      ];
+      const expectedSeats = 17;
+
+      ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(seatReservationServiceMock).toBeCalledWith(accountId, expectedSeats);
     });
   });
 });
