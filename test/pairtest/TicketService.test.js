@@ -49,7 +49,7 @@ describe('TicketService', () => {
     const invalidTicketException = new InvalidPurchaseException(errorMessages.invalidTickets);
     const maximumTicketExcepion = new InvalidPurchaseException(errorMessages.maxTickets);
 
-    it('should throw exception if tickets are empty', () => {
+    it('should throw exception if tickets are not provided', () => {
       expect(() => {
         ticketService.purchaseTickets(accountId);
       }).toThrow(invalidTicketException);
@@ -87,6 +87,15 @@ describe('TicketService', () => {
       expect(() => {
         ticketService.purchaseTickets(accountId, tickets);
       }).toThrow(new InvalidPurchaseException(errorMessages.noAdult));
+    });
+
+    it('should throw an exception if number of infant tickets greater than number of adult tickets', () => {
+      const adultTickets = new TicketTypeRequest('ADULT', 1);
+      const infantTickets = new TicketTypeRequest('INFANT', 2);
+
+      expect(() => {
+        ticketService.purchaseTickets(accountId, adultTickets, infantTickets);
+      }).toThrow(new InvalidPurchaseException(errorMessages.maxInfants));
     });
   });
 });

@@ -26,6 +26,8 @@ export default class TicketService {
     }
 
     let adultTicketPurchased = false;
+    let numAdultTickets = 0;
+    let numInfantTickets = 0;
     ticketTypeRequests.forEach((ticket) => {
       if (!(ticket instanceof TicketTypeRequest)) {
         throw new InvalidPurchaseException(errorMessages.invalidTickets);
@@ -33,11 +35,20 @@ export default class TicketService {
 
       if (ticket.getTicketType() === 'ADULT') {
         adultTicketPurchased = true;
+        numAdultTickets += ticket.getNoOfTickets();
+      }
+
+      if (ticket.getTicketType() === 'INFANT') {
+        numInfantTickets += ticket.getNoOfTickets();
       }
     });
 
     if (adultTicketPurchased === false) {
       throw new InvalidPurchaseException(errorMessages.noAdult);
+    }
+
+    if (numInfantTickets > numAdultTickets) {
+      throw new InvalidPurchaseException(errorMessages.maxInfants);
     }
 
     // eslint-disable-next-line arrow-body-style
