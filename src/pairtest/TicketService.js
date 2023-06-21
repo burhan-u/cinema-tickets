@@ -2,10 +2,9 @@
 import TicketTypeRequest from './lib/TicketTypeRequest';
 import InvalidPurchaseException from './lib/InvalidPurchaseException';
 import errorMessages from './lib/ErrorMessages';
+import config from './lib/TicketServiceConfig';
 
 export default class TicketService {
-  #MAX_TICKET_COUNT = 20;
-
   #ticketPaymentService;
 
   constructor(ticketPaymentService) {
@@ -60,7 +59,7 @@ export default class TicketService {
       throw new InvalidPurchaseException(errorMessages.maxInfants);
     }
 
-    if (totalTicketCount > this.#MAX_TICKET_COUNT) {
+    if (totalTicketCount > config.maxTicketCount) {
       throw new InvalidPurchaseException(errorMessages.maxTickets);
     }
   }
@@ -80,16 +79,11 @@ export default class TicketService {
   }
 
   #getTotalCost(tickets) {
-    const ticketPrices = {
-      ADULT: 20,
-      CHILD: 10,
-      INFANT: 0,
-    };
     let totalPrice = 0;
 
     Object.entries(tickets).forEach((entry) => {
       const [ticketType, ticketCount] = entry;
-      totalPrice += (ticketPrices[ticketType] * ticketCount);
+      totalPrice += (config.ticketPrices[ticketType] * ticketCount);
     });
 
     return totalPrice;
