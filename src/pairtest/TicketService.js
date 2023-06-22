@@ -31,11 +31,7 @@ export default class TicketService {
       return {
         message: 'success',
         accountId,
-        tickets: {
-          adult: ticketCount.ADULT,
-          child: ticketCount.CHILD,
-          infant: ticketCount.INFANT,
-        },
+        tickets: ticketCount,
         totalPrice,
         seatsReserved: seatsToReserve,
       };

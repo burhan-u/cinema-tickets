@@ -302,9 +302,9 @@ describe('TicketService', () => {
         message: 'success',
         accountId: 7025,
         tickets: {
-          adult: 6,
-          child: 3,
-          infant: 6,
+          ADULT: 6,
+          CHILD: 3,
+          INFANT: 6,
         },
         totalPrice: 150,
         seatsReserved: 9,
