@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { jest } from '@jest/globals';
+import {
+  beforeEach, describe, expect, it, jest,
+} from '@jest/globals';
 import TicketService from '../../src/pairtest/TicketService';
 import TicketTypeRequest from '../../src/pairtest/lib/TicketTypeRequest';
 import InvalidPurchaseException from '../../src/pairtest/lib/InvalidPurchaseException';
@@ -278,6 +280,39 @@ describe('TicketService', () => {
       ticketService.purchaseTickets(accountId, ...tickets);
 
       expect(seatReservationServiceMock).toBeCalledWith(accountId, expectedSeats);
+    });
+  });
+
+  describe('Successful purchase message', () => {
+    it('should return an object containing success message, account id, tickets, total price, and seats reserved', () => {
+      const paymentService = new TicketPaymentService();
+      const seatReservationService = new SeatReservationService();
+      ticketService = new TicketService(paymentService, seatReservationService);
+
+      const accountId = 7025;
+      const tickets = [
+        new TicketTypeRequest('CHILD', 2),
+        new TicketTypeRequest('ADULT', 1),
+        new TicketTypeRequest('INFANT', 6),
+        new TicketTypeRequest('ADULT', 5),
+        new TicketTypeRequest('CHILD', 1),
+      ];
+
+      const expectedMessage = {
+        message: 'success',
+        accountId: 7025,
+        tickets: {
+          adult: 6,
+          child: 3,
+          infant: 6,
+        },
+        totalPrice: 150,
+        seatsReserved: 9,
+      };
+
+      const message = ticketService.purchaseTickets(accountId, ...tickets);
+
+      expect(message).toEqual(expectedMessage);
     });
   });
 });

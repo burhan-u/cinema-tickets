@@ -24,8 +24,26 @@ export default class TicketService {
     const totalPrice = this.#getTotalCost(ticketCount);
     const seatsToReserve = this.#getNumSeatsToReserve(ticketCount);
 
-    this.#ticketPaymentService.makePayment(accountId, totalPrice);
-    this.#seatReservationService.reserveSeat(accountId, seatsToReserve);
+    try {
+      this.#ticketPaymentService.makePayment(accountId, totalPrice);
+      this.#seatReservationService.reserveSeat(accountId, seatsToReserve);
+
+      return {
+        message: 'success',
+        accountId,
+        tickets: {
+          adult: ticketCount.ADULT,
+          child: ticketCount.CHILD,
+          infant: ticketCount.INFANT,
+        },
+        totalPrice,
+        seatsReserved: seatsToReserve,
+      };
+    } catch (error) {
+      return {
+        message: error.message,
+      };
+    }
   }
 
   #validateAccountID(accountId) {
