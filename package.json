@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test-coverage": "npm test -- --coverage=true"
+    "test-coverage": "npm test -- --coverage=true",
+    "test-mutation": "npx stryker run"
   },
   "devDependencies": {
     "@jest/globals": "29.5.0",
