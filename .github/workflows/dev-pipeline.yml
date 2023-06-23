@@ -2,30 +2,60 @@ name: Development Pipeline
 
 on: push
 
+env:
+  NODE_VERSION: 18
+
 jobs:
   lint:
-    runs-on: ubuntu-latest
     name: Code Linting
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        uses: ./.github/workflows/node-setup.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Run Lint
         run: npm run lint
 
   test:
-    runs-on: ubuntu-latest
     name: Unit Tests
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        uses: ./.github/workflows/node-setup.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Run Test
         run: npm test
 
   audit:
-    runs-on: ubuntu-latest
     name: Audit Dependencies
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup
-        uses: ./.github/workflows/node-setup.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Run Audit
         run: npm audit
