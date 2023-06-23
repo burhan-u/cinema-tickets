@@ -2,27 +2,30 @@ name: Development Pipeline
 
 on: push
 
-env:
-  NODE_SETUP_WORKFLOW: burhan-u/cinema-tickets/.github/workflows/node-setup.yml
-
 jobs:
   lint:
+    runs-on: ubuntu-latest
     name: Code Linting
-    uses: $NODE_SETUP_WORKFLOW
     steps:
+      - name: Setup
+        uses: ./.github/workflows/node-setup.yml
       - name: Run Lint
         run: npm run lint
 
   test:
+    runs-on: ubuntu-latest
     name: Unit Tests
-    uses: $NODE_SETUP_WORKFLOW
     steps:
+      - name: Setup
+        uses: ./.github/workflows/node-setup.yml
       - name: Run Test
         run: npm test
 
   audit:
+    runs-on: ubuntu-latest
     name: Audit Dependencies
-    uses: $NODE_SETUP_WORKFLOW
     steps:
+      - name: Setup
+        uses: ./.github/workflows/node-setup.yml
       - name: Run Audit
         run: npm audit
