@@ -2,9 +2,6 @@ name: Development Pipeline
 
 on: push
 
-env:
-  NODE_VERSION: 18
-
 jobs:
   lint:
     name: Code Linting
@@ -16,7 +13,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
+          node-version: 18
 
       - name: Install Dependencies
         run: npm ci
@@ -34,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
+          node-version: 18
 
       - name: Install Dependencies
         run: npm ci
@@ -52,7 +49,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
+          node-version: 18
 
       - name: Install Dependencies
         run: npm ci
